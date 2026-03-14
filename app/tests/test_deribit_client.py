@@ -16,7 +16,7 @@ async def test_get_index_price_success():
             json={"result": {"index_price": 123.45}},
         )
 
-        async with DeribitClient() as client:
+        async with DeribitClient(base_url="https://test.deribit.com/api/v2") as client:
             price = await client.get_index_price("btc_usd")
 
         assert price == 123.45
@@ -33,7 +33,7 @@ async def test_get_index_price_invalid_payload():
             json={"foo": "bar"},
         )
 
-        async with DeribitClient() as client:
+        async with DeribitClient(base_url="https://test.deribit.com/api/v2") as client:
             with pytest.raises(ValueError, match="Unexpected response format"):
                 await client.get_index_price("btc_usd")
 
@@ -49,7 +49,7 @@ async def test_get_index_price_http_error():
             json={},
         )
 
-        async with DeribitClient() as client:
+        async with DeribitClient(base_url="https://test.deribit.com/api/v2") as client:
             with pytest.raises(httpx.HTTPStatusError):
                 await client.get_index_price("btc_usd")
 
@@ -72,7 +72,7 @@ async def test_get_index_prices_multiple():
             json={"result": {"index_price": 222.0}},
         )
 
-        async with DeribitClient() as client:
+        async with DeribitClient(base_url="https://test.deribit.com/api/v2") as client:
             prices = await client.get_index_prices(["btc_usd", "eth_usd"])
 
         assert prices == {"btc_usd": 111.0, "eth_usd": 222.0}
@@ -92,7 +92,7 @@ async def test_authenticate_success():
             json={"result": {"access_token": "token", "expires_in": 10}},
         )
 
-        async with DeribitClient(client_id="id", client_secret="secret") as client:
+        async with DeribitClient(base_url="https://test.deribit.com/api/v2", client_id="id", client_secret="secret") as client:
             token = await client.authenticate()
 
         assert token == "token"
@@ -113,7 +113,7 @@ async def test_authenticate_invalid_payload():
             json={"result": {}},
         )
 
-        async with DeribitClient(client_id="id", client_secret="secret") as client:
+        async with DeribitClient(base_url="https://test.deribit.com/api/v2", client_id="id", client_secret="secret") as client:
             with pytest.raises(ValueError, match="Unexpected auth response format"):
                 await client.authenticate()
 
@@ -133,7 +133,7 @@ async def test_authenticate_http_error():
             json={},
         )
 
-        async with DeribitClient(client_id="id", client_secret="secret") as client:
+        async with DeribitClient(base_url="https://test.deribit.com/api/v2", client_id="id", client_secret="secret") as client:
             with pytest.raises(httpx.HTTPStatusError):
                 await client.authenticate()
 
@@ -161,7 +161,7 @@ async def test_get_account_summary_success():
             json={"result": {"currency": "BTC", "balance": 1.0}},
         )
 
-        async with DeribitClient(client_id="id", client_secret="secret") as client:
+        async with DeribitClient(base_url="https://test.deribit.com/api/v2", client_id="id", client_secret="secret") as client:
             summary = await client.get_account_summary("BTC")
 
         assert summary == {"currency": "BTC", "balance": 1.0}
@@ -190,6 +190,6 @@ async def test_get_account_summary_invalid_payload():
             json={"foo": "bar"},
         )
 
-        async with DeribitClient(client_id="id", client_secret="secret") as client:
+        async with DeribitClient(base_url="https://test.deribit.com/api/v2", client_id="id", client_secret="secret") as client:
             with pytest.raises(ValueError, match="Unexpected account summary response format"):
                 await client.get_account_summary("BTC")

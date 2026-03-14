@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 import time
 from typing import Iterable, Mapping
 
@@ -6,11 +6,9 @@ import httpx
 
 
 class DeribitClient:
-    """Minimal async client for Deribit public index price endpoints."""
-
     def __init__(
         self,
-        base_url: str = "https://test.deribit.com/api/v2",
+        base_url: str = "https://www.deribit.com/api/v2",
         timeout: float = 10.0,
         client: httpx.AsyncClient | None = None,
         client_id: str | None = None,
@@ -41,17 +39,14 @@ class DeribitClient:
         return self._client
 
     async def get_index_price(self, index_name: str) -> float:
-        """Fetch index price by index name, e.g. 'btc_usd' or 'eth_usd'."""
         if not index_name:
             raise ValueError("index_name must be non-empty")
 
         client = await self._get_client()
-        # Use a relative path so httpx resolves it against base_url with /api/v2.
         response = await client.get("public/get_index_price", params={"index_name": index_name})
         response.raise_for_status()
         data = response.json()
 
-        # Expected shape: {"result": {"index_price": 123.45}, "usIn": ..., "usOut": ...}
         try:
             price = data["result"]["index_price"]
         except (KeyError, TypeError) as exc:
@@ -63,7 +58,6 @@ class DeribitClient:
         return float(price)
 
     async def get_index_prices(self, index_names: Iterable[str]) -> Mapping[str, float]:
-        """Fetch multiple index prices concurrently."""
         names = [name for name in index_names if name]
         if not names:
             raise ValueError("index_names must contain at least one name")
@@ -73,7 +67,6 @@ class DeribitClient:
         return dict(zip(names, prices))
 
     async def authenticate(self) -> str:
-        """Authenticate via client credentials and cache access token."""
         if not self._client_id or not self._client_secret:
             raise ValueError("client_id and client_secret are required for authentication")
 
@@ -100,7 +93,6 @@ class DeribitClient:
             raise ValueError("Invalid expires_in in Deribit response")
 
         self._access_token = token
-        # Renew a bit early to avoid edge timing.
         self._token_expires_at = time.time() + float(expires_in) - 30.0
         return token
 
@@ -110,7 +102,6 @@ class DeribitClient:
         return await self.authenticate()
 
     async def get_account_summary(self, currency: str) -> dict:
-        """Get account summary for a currency (private endpoint)."""
         if not currency:
             raise ValueError("currency must be non-empty")
 

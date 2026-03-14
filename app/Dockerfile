@@ -7,9 +7,9 @@ WORKDIR /app
 
 COPY . /app
 
-# Install dependencies if a requirements file is provided.
-RUN if [ -f requirements.txt ]; then \
-      pip install --no-cache-dir -r requirements.txt; \
+# Install dependencies from app/requirements.txt inside repo root.
+RUN if [ -f /app/app/requirements.txt ]; then \
+      pip install --no-cache-dir -r /app/app/requirements.txt; \
     fi
 
 EXPOSE 8000

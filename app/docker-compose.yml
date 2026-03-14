@@ -3,8 +3,8 @@
 services:
   api:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: app/Dockerfile
     container_name: deribit_api
     env_file:
       - .env
@@ -19,12 +19,12 @@ services:
       - "8000:8000"
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
     volumes:
-      - ./:/app
+      - ../:/app
 
   celery_worker:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: app/Dockerfile
     container_name: deribit_celery_worker
     env_file:
       - .env
@@ -37,12 +37,12 @@ services:
       - redis
     command: ["celery", "-A", "app.core.celery_app", "worker", "-l", "info"]
     volumes:
-      - ./:/app
+      - ../:/app
 
   celery_beat:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: app/Dockerfile
     container_name: deribit_celery_beat
     env_file:
       - .env
@@ -55,7 +55,7 @@ services:
       - redis
     command: ["celery", "-A", "app.core.celery_app", "beat", "-l", "info"]
     volumes:
-      - ./:/app
+      - ../:/app
 
   db:
     image: postgres:16
